@@ -1,0 +1,13 @@
+.DS_Store
+.RData
+.Rhistory
+.Rproj.user
+.depr
+
+data/*
+!data/.gitkeep
+plots/*
+!plots/.gitkeep
+docs/*
+
+*.Rproj
