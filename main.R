@@ -3,8 +3,8 @@
 require(tidyverse)
 require(lubridate)
 
-source('dataMungingFuncs.r')
-source('dataImportFuncs.r')
+source('scripts/dataMungingFuncs.r')
+source('scripts/dataImportFuncs.r')
 
 ###########################
 # TEMP for testing

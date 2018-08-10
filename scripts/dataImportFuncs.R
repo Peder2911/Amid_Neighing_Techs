@@ -52,9 +52,11 @@ downloadGed<-function(names,startDate,endDate){
 
 getGed<-function(names,startDate,endDate){
   
+  print(startDate)
+  
   if('ged181.csv' %in% list.files('./data')){
     print('Using file')
-    ged<-read.csv('./data/ged181.csv')%>%
+    ged<-read.csv('./data/ged181.csv',stringsAsFactors = FALSE)%>%
       fixDates()%>%
       subsetByVector(names,startDate,endDate)
     

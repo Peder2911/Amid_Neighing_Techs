@@ -1,6 +1,6 @@
 library(tidyverse)
 library(lubridate)
-
+library(magrittr)
 
 # Preprocessing ---------------------------------------------------------------
 
@@ -56,7 +56,6 @@ dateExpand<-function(df){
   
 }
 
-
 # Subsets the ged dataframe by ged$country with strings from a vector
 # subsets<-subsetByVector(ged,c('Colombia','Norway','France'))
 subsetByVector<-function(df,vector,startDate,endDate){
@@ -102,7 +101,8 @@ getTimeline<-function(df,start,end){
   dfSum<-dfExp%>%
     group_by(date)%>%
     summarise(deaths = sum(deathsDistrib),
-              country = max(as.character(country))) # Get the country name
+              country = max(as.character(country)), # Get the country name
+              dyad = max(as.character(dyad_name))) # Get the dyad name
   
   timeRange<-data.frame(date=seq(start,
                                  end,
@@ -128,7 +128,11 @@ getTimeline<-function(df,start,end){
   
 }
 
-explodeTl <- function(tl,countVar){
+# Explodes a timeline summary into individual event where each data point accounts for a single occurrence of the event count.
+# Useful for vizualising with geom_freqpoly and other stat_bin based geoms
+explodeTimeline <- function(tl,countVar,dropCountVar = TRUE){
+  
+  types <- sapply(tl,class)
   
   explodeRow <- function(row,countVar){
     row <- as.list(row)
@@ -148,11 +152,38 @@ explodeTl <- function(tl,countVar){
     }
   }
   
-  print(str(tl))
-  tl <- apply(tl,1,explodeRow,countVar)%>%
-    bind_rows()
-  tl
+  tl_out <- apply(tl,1,explodeRow,countVar)%>%
+    bind_rows()%>%
+    copyTypes(tl)%>%
+    filter(deaths > 0)
+  if(dropCountVar){
+    tl_out <- tl_out[, !names(tl_out) == countVar]
+  }
 }
+
+# Function to modify the data type of columns in a data frame.
+# Data type to apply is specified with a character vector (e.g c('character','character','numeric'))
+setTypes <- function(df,typeVec){
+  expressions <- sapply(typeVec,function(x){
+    paste('as.',x,sep='')%>%
+      parse(text = .)
+  })
+  
+  i = 1
+  for(e in expressions){
+    df[[i]] <- eval(e)(df[[i]])
+    i <- i + 1 
+  }
+  df
+}
+
+# Copies data types from one data frame to another.
+copyTypes <- function(to,from){
+  types <- sapply(from,class)
+  to <- setTypes(to,types)
+  to
+}
+
 # Plotting ----------------------------------------------------------------
 
 # Aggregates deaths by scale in timeline
