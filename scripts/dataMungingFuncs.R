@@ -102,7 +102,8 @@ getTimeline<-function(df,start,end){
     group_by(date)%>%
     summarise(deaths = sum(deathsDistrib),
               country = max(as.character(country)), # Get the country name
-              dyad = max(as.character(dyad_name))) # Get the dyad name
+              dyad = max(as.character(dyad_name)),
+              dyad_id = max(dyad_new_id)) # Get the dyad name
   
   timeRange<-data.frame(date=seq(start,
                                  end,
